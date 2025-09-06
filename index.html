@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MonoTree | Next-Gen Gaming Suite</title>
+  <meta name="description" content="MonoTree — a professional, futuristic gaming suite with AI coaching, ultra-low-latency VR, and elite peripherals. Built to impress.">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#06060a;
+      --panel:#0e0f17;
+      --ink:#e8f7ff;
+      --muted:#b6c5d1;
+      --neon1:#00fff2;
+      --neon2:#ff00f2;
+      --accent:#7cff00;
+      --grad:linear-gradient(90deg,var(--neon2),var(--neon1));
+      --ring:0 0 12px #00fff280, 0 0 24px #ff00f280;
+      --tileGrad: conic-gradient(from 180deg at 50% 50%, #00fff233, #ff00f233, #7cff0033, #00fff233);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;scroll-behavior:smooth}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    .pill{display:inline-flex;gap:.5rem;align-items:center;border:1px solid #ffffff22;background:#0e0f1711;padding:.35rem .75rem;border-radius:999px;font-size:.85rem;color:var(--muted)}
+    .btn{display:inline-flex;align-items:center;gap:.6rem;border:none;border-radius:999px;padding:.9rem 1.25rem;font-weight:700;letter-spacing:.3px;cursor:pointer;background:var(--grad);color:#0b0b0b;box-shadow:var(--ring);transition:transform .2s,box-shadow .2s}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 0 18px #00fff2a0,0 0 30px #ff00f2a0}
+    .ghost{background:#121423;border:1px solid #ffffff22;color:var(--ink)}
+
+    /* LOADER */
+    #loader{position:fixed;inset:0;display:grid;place-items:center;background:#07070c;z-index:3000;transition:opacity .5s ease, visibility .5s ease}
+    #loader.hide{opacity:0;visibility:hidden}
+    .logo-glow{width:92px;height:92px;border-radius:22px;background:var(--grad);filter:blur(18px);opacity:.45;position:absolute}
+    .logo-mark{position:relative;display:grid;place-items:center;width:82px;height:82px;border-radius:20px;background:#0c0f1c;border:1px solid #ffffff1a;box-shadow:0 0 24px #00fff233, inset 0 0 18px #ff00f21a}
+    .logo-mark b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:28px;letter-spacing:.5px}
+    .loader-pulse{position:absolute;width:160px;height:160px;border-radius:50%;border:2px solid #00fff21a;animation:pulse 2s infinite}
+    @keyframes pulse{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.2);opacity:0}100%{opacity:0}}
+
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:1000;background:rgba(6,6,10,.75);backdrop-filter:blur(10px);border-bottom:1px solid #ffffff14}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+    .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;letter-spacing:.5px}
+    .brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .menu{display:flex;gap:1.2rem;align-items:center}
+    .menu a{color:var(--muted);font-weight:600}
+    .menu a:hover{color:var(--ink)}
+    .hamburger{display:none;background:none;border:none;color:var(--ink);font-size:1.8rem}
+    @media(max-width:860px){
+      .menu{display:none;position:absolute;top:60px;right:20px;flex-direction:column;background:#0b0d17;border:1px solid #ffffff1a;border-radius:16px;padding:14px;width:220px}
+      .menu.show{display:flex}
+      .hamburger{display:block}
+    }
+
+    /* HERO */
+    .hero{position:relative;isolation:isolate;overflow:hidden}
+    .hero-bg{position:absolute;inset:-20% -10% -10% -10%;background:
+      radial-gradient(60% 60% at 20% 0%, #ff00f211 0 40%, transparent 60%),
+      radial-gradient(60% 60% at 80% 0%, #00fff211 0 40%, transparent 60%),
+      radial-gradient(100% 80% at 50% 100%, #00ff9a0f 0 40%, transparent 60%);
+      filter:saturate(140%) blur(20px);z-index:-2}
+    /* particles canvas only inside hero */
+    #particles{position:absolute;inset:0;z-index:-1;opacity:.6;mix-blend-mode:screen}
+
+    .hero .container{display:grid;grid-template-columns:1.1fr .9fr;gap:38px;align-items:center;padding:64px 20px 36px}
+    @media(max-width:940px){.hero .container{grid-template-columns:1fr}}
+    .hero h1{font-size:clamp(2.2rem,5.5vw,4rem);line-height:1.05;margin:.2rem 0 .8rem;font-weight:800;letter-spacing:.2px}
+    .tape{display:inline-grid;gap:.6rem;align-items:center;grid-auto-flow:column}
+    .tape .dot{width:10px;height:10px;border-radius:50%;background:var(--neon1);box-shadow:0 0 16px var(--neon1)}
+    .lead{color:var(--muted);font-size:1.1rem;max-width:60ch}
+    .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    .glass{border:1px solid #ffffff14;background:#0b0d17aa;backdrop-filter:blur(6px);border-radius:18px;padding:14px 16px}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+    .metric{display:grid;gap:6px;justify-items:start}
+    .metric .num{font-size:1.6rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .metric .cap{font-size:.85rem;color:var(--muted)}
+    .mock{border-radius:16px;overflow:hidden;border:1px solid #ffffff1a;box-shadow:0 0 40px #00fff20f}
+    .mock img{display:block;width:100%;height:auto}
+
+    /* LOGO BELT */
+    .belt{padding:28px 0;border-top:1px solid #ffffff10;border-bottom:1px solid #ffffff10;background:#090b14}
+    .belt-row{display:grid;grid-auto-flow:column;gap:28px;overflow:auto;scrollbar-width:none}
+    .belt-row span{opacity:.7;white-space:nowrap}
+
+    /* SECTION HEAD */
+    .sect{padding:70px 0}
+    .sect h2{font-size:clamp(1.6rem,3.5vw,2.4rem);margin:0 0 8px;font-weight:800}
+    .sub{color:var(--muted);max-width:70ch}
+
+    /* FEATURES GRID */
+    .features{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:26px}
+    .f{grid-column:span 6;background:var(--panel);border:1px solid #ffffff14;border-radius:16px;padding:18px;display:grid;gap:10px;box-shadow:0 0 24px #000}
+    .f h3{margin:0;font-size:1.1rem}
+    .f p{margin:0;color:var(--muted)}
+    .f .chip{justify-self:start}
+    .f-media{border-radius:12px;overflow:hidden;border:1px solid #ffffff14}
+    .f-media img{width:100%;display:block}
+    @media(max-width:980px){.f{grid-column:span 12}}
+
+    /* AI BOT STRIP */
+    .ai{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;background:linear-gradient(180deg,#0b0d17,#0b0d17 50%,#0a0f14);border:1px solid #ffffff14;border-radius:20px;padding:22px;margin-top:24px}
+    @media(max-width:980px){.ai{grid-template-columns:1fr}}
+    .chat{background:#0b0f16;border:1px solid #ffffff14;border-radius:14px;padding:12px;display:grid;gap:10px}
+    .bubble{border-radius:14px;padding:10px 12px}
+    .user{background:#11182a}
+    .bot{background:#0d1427;border:1px solid #00fff21a}
+
+    /* PRODUCTS */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:24px}
+    .card{background:#0c0f1c;border:1px solid #ffffff12;border-radius:16px;overflow:hidden;transform:translateY(24px);opacity:0;transition:transform .9s ease,opacity .9s ease,box-shadow .2s}
+    .card.visible{transform:translateY(0);opacity:1}
+    .card:hover{box-shadow:0 0 24px #ff00f244, 0 0 28px #00fff244}
+    .card img{width:100%;display:block}
+    .card .pad{padding:14px}
+    .card h4{margin:4px 0 6px;font-size:1.05rem}
+    .card p{margin:0;color:var(--muted);font-size:.95rem}
+
+    /* TESTIMONIALS */
+    .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+    .q{background:#0c0f1c;border:1px solid #ffffff12;border-radius:16px;padding:16px}
+    .q b{display:block;margin:10px 0 0}
+    .q small{color:var(--muted)}
+    @media(max-width:980px){.quotes{grid-template-columns:1fr}}
+
+    /* INTEGRATIONS (UPGRADED) */
+    .integrations h2{display:inline-block;position:relative;transition:filter .25s}
+    .integrations h2:hover{filter:drop-shadow(0 0 14px var(--neon1)) drop-shadow(0 0 20px var(--neon2))}
+    .stack{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+    @media(max-width:980px){.stack{grid-template-columns:repeat(2,1fr)}}
+    .tile{
+      position:relative;isolation:isolate;
+      background:#0c0f1c;border:1px solid #ffffff12;border-radius:16px;padding:14px;
+      color:#cfe;display:flex;align-items:center;gap:12px;overflow:hidden;
+      transition:transform .2s, box-shadow .2s, border-color .2s, background .3s;
+    }
+    .tile::before{
+      content:""; position:absolute; inset:-1px; z-index:-1; border-radius:18px;
+      background:var(--tileGrad); filter:blur(18px); opacity:0; transition:opacity .25s;
+    }
+    .tile:hover{
+      transform:translateY(-4px);
+      box-shadow:0 0 28px #00fff244, 0 0 36px #ff00f244;
+      border-color:#00fff266; background:linear-gradient(180deg,#0e1324,#0c0f1c);
+    }
+    .tile:hover::before{opacity:1}
+    .app-logo{
+      width:36px;height:36px;display:grid;place-items:center;border-radius:12px;
+      background: #0e1324;border:1px solid #ffffff1a;box-shadow:inset 0 0 18px #00fff212;
+      flex:0 0 auto;
+    }
+    .app-name{font-weight:700;letter-spacing:.2px}
+    .app-sub{display:block;font-size:.78rem;color:#9fb3c1;font-weight:600}
+
+    /* ABOUT / CONTACT */
+    .about,.contact{background:#0a0d15;border:1px solid #ffffff12;border-radius:18px;padding:22px;margin-top:26px}
+    .contact form{display:grid;gap:10px}
+    .contact input,.contact textarea{background:#0f1221;border:1px solid #ffffff1a;border-radius:12px;padding:12px;color:var(--ink);font:inherit}
+    .contact input:focus,.contact textarea:focus{outline:none;box-shadow:0 0 0 2px #00fff240}
+
+    /* CTA STRIP */
+    .cta-strip{margin:60px 0;padding:26px;border:1px solid #ffffff12;border-radius:20px;background:linear-gradient(180deg,#0b0d17,#0b0d17 60%,#0c141a)}
+    .cta-strip .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+
+    /* FOOTER */
+    footer{border-top:1px solid #ffffff14;padding:26px 0;color:#9db0bb;font-size:.95rem}
+
+    /* AUTH MODAL */
+    .modal{position:fixed;inset:0;background:#0008;display:grid;place-items:center;opacity:0;visibility:hidden;transition:.25s;z-index:2000}
+    .modal.show{opacity:1;visibility:visible}
+    .sheet{width:min(420px,92vw);background:#0b0f16;border:1px solid #ffffff1a;border-radius:18px;padding:18px;box-shadow:var(--ring)}
+    .sheet h3{margin:6px 0 12px}
+    .sheet input{width:100%;margin:6px 0 0;background:#0f1221;border:1px solid #ffffff1a;border-radius:12px;padding:12px;color:var(--ink)}
+    .sheet .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .close{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer}
+
+    /* UTILS */
+    .fade-up{transform:translateY(26px);opacity:0;transition:all .9s ease}
+    .fade-up.visible{transform:translateY(0);opacity:1}
+  </style>
+</head>
+<body>
+  <!-- LOADING SCREEN -->
+  <div id="loader" aria-label="Loading">
+    <div class="loader-pulse"></div>
+    <div class="logo-glow"></div>
+    <div class="logo-mark"><b>MT</b></div>
+  </div>
+
+  <!-- NAV -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand"><span class="pill">MT</span> <b>MonoTree</b></div>
+      <nav class="menu" id="menu">
+        <a href="#product">Product</a>
+        <a href="#features">Highlights</a>
+        <a href="#store">Store</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#" id="openAuth" class="pill">Login</a>
+      </nav>
+      <button class="hamburger" id="hamburger">☰</button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="product">
+    <div class="hero-bg"></div>
+    <!-- Particles canvas (hero only) -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <div class="container">
+      <div>
+        <span class="pill tape"><span class="dot"></span><span>Pro Gaming Suite</span></span>
+        <h1 class="fade-up">Play Beyond Reality.</h1>
+        <p class="lead fade-up">Fast, user-friendly and obsessively crafted — transform your play with <b>ultra-low latency VR</b>, <b>AI coaching</b>, and <b>elite peripherals</b> inside your own branded ecosystem.</p>
+        <div class="cta-row fade-up">
+          <a href="#store" class="btn">Explore Products</a>
+          <a href="#demo" class="btn ghost">Book a Live Demo</a>
+        </div>
+        <div class="metrics">
+          <div class="metric glass">
+            <div class="num" data-count="4.9">0.0</div>
+            <div class="cap">Avg. user rating</div>
+          </div>
+          <div class="metric glass">
+            <div class="num" data-count="76.4">0.0</div>
+            <div class="cap">Daily active players (%)</div>
+          </div>
+          <div class="metric glass">
+            <div class="num" data-count="2.1">0.0</div>
+            <div class="cap">Avg. app opens / day</div>
+          </div>
+        </div>
+      </div>
+      <div class="mock fade-up">
+        <img src="gaming_monitor.jpg" alt="MonoTree gameplay showcase">
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BELT -->
+  <section class="belt">
+    <div class="container belt-row" aria-label="Trusted by">
+      <span>NeoArcade</span><span>QuantumWorks</span><span>SkyForge Esports</span><span>Vector Labs</span><span>HoloPlay</span>
+      <span>ZenithVR</span><span>Crystal Engine</span><span>PulseCloud</span><span>DarkMatter Studio</span>
+    </div>
+  </section>
+
+  <!-- PRODUCT HIGHLIGHTS -->
+  <section class="sect" id="features">
+    <div class="container">
+      <h2>Highlights</h2>
+      <p class="sub">Built like an enterprise platform, tuned for gamers. Social systems, ops tools, training modules — all optimized for performance and fun.</p>
+
+      <div class="features">
+        <article class="f fade-up">
+          <span class="chip pill">Multiplayer & Social</span>
+          <h3>Clans, live chats & events</h3>
+          <p>Coordinate raids, scrims and tournaments with frictionless chat, voice hooks and auto-scheduled clan events.</p>
+          <div class="f-media"><img src="controller.jpeg" alt="Clan chat and events"></div>
+        </article>
+
+        <article class="f fade-up">
+          <span class="chip pill">Training & Information</span>
+          <h3>Onboarding & micro-courses</h3>
+          <p>Level up fast with bite-sized tutorials and handbooks that load instantly — perfect for new squads and pros alike.</p>
+          <div class="f-media"><img src="keyboard.webp" alt="Training & onboarding"></div>
+        </article>
+
+        <article class="f fade-up">
+          <span class="chip pill">Daily Ops</span>
+          <h3>Loadouts, macros & forms</h3>
+          <p>Standardize pre-match checklists, bug report forms and gear audits so every session starts flawless.</p>
+          <div class="f-media"><img src="gaming_mousepad.webp" alt="Daily operations"></div>
+        </article>
+
+        <article class="f fade-up">
+          <span class="chip pill">Well-being & Retention</span>
+          <h3>Focus, wellness & burnout guard</h3>
+          <p>Track session intensity, encourage micro-breaks and keep your team at peak performance for the long run.</p>
+          <div class="f-media"><img src="gaming_chair.webp" alt="Well being"></div>
+        </article>
+      </div>
+
+      <!-- AI COACH STRIP -->
+      <div class="ai fade-up">
+        <div>
+          <span class="pill">New feature</span>
+          <h2 style="margin:.4rem 0 8px">MonoTree <span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">AI Coach</span> is here</h2>
+          <p class="sub">Your personal tactician that analyzes your handbooks, settings, and VOD notes — then answers in-match questions with secure role-based access.</p>
+          <div class="cta-row"><button class="btn" id="askBot">Ask our AI</button><a href="#store" class="btn ghost">Browse gear</a></div>
+        </div>
+        <div class="chat">
+          <div class="bubble user">How do I reduce VR motion blur?</div>
+          <div class="bubble bot">Try enabling Motion Smoothing and set render scale to 1.0. In MonoTree → VR → <i>Stability</i> apply the <b>Anti-Blur</b> profile. Full guide: <span class="pill">VR_Optimization.pdf</span></div>
+          <div class="bubble user">Best DPI for tactical shooters?</div>
+          <div class="bubble bot">Start at 800 DPI with 0.9 in-game sens. Use our <b>Aim Harmonizer</b> to convert settings across titles.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORE / PRODUCTS -->
+  <section class="sect" id="store">
+    <div class="container">
+      <h2>Pro Gear</h2>
+      <p class="sub">Curated hardware, tuned by MonoTree profiles. Hover, scroll — everything animates with intent.</p>
+
+      <div class="grid" id="cards">
+        <article class="card"><img src="vr_headset.jpeg" alt="VR Headset"><div class="pad"><h4>VR Headset</h4><p>Step into alternate dimensions with ultra-low latency visuals and spatial audio. Designed for limitless immersion — your gateway to future worlds.</p></div></article>
+
+        <article class="card"><img src="keyboard.webp" alt="Gaming Keyboard"><div class="pad"><h4>Gaming Keyboard</h4><p>Precision-switch mechanics and adaptive RGB intelligence. Every keystroke lands like a command to the digital universe.</p></div></article>
+
+        <article class="card"><img src="gaming_mouse.avif" alt="Gaming Mouse"><div class="pad"><h4>Gaming Mouse</h4><p>AI-assisted tracking with millisecond response. Speed, accuracy, and ergonomic comfort converge for flawless control.</p></div></article>
+
+        <article class="card"><img src="gaming_headset.webp" alt="Gaming Headset"><div class="pad"><h4>Headphones</h4><p>Hyper-realistic 3D soundscapes with noise-adaptive filtering. Every sound becomes a signal — every signal, an advantage.</p></div></article>
+
+        <article class="card"><img src="gaming_chair.webp" alt="Gaming Chair"><div class="pad"><h4>Gaming Chair</h4><p>Ergonomically sculpted with zero-gravity support. Built to sustain champions through marathon sessions.</p></div></article>
+
+        <article class="card"><img src="gaming_monitor.jpg" alt="Gaming Monitor"><div class="pad"><h4>Monitor</h4><p>Quantum-dot HDR with infinity contrast and 240Hz refresh. See the unseen — react before the rest.</p></div></article>
+
+        <article class="card"><img src="gaming_mousepad.webp" alt="Gaming Mousepad"><div class="pad"><h4>Mousepad</h4><p>Nanotech surface engineered for precision glide. Smart-LED edges sync with your every action.</p></div></article>
+
+        <article class="card"><img src="controller.jpeg" alt="Controller"><div class="pad"><h4>Controller</h4><p>Tactile haptics fused with adaptive triggers. A controller that evolves with your gameplay.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="sect">
+    <div class="container">
+      <h2>What pros say</h2>
+      <div class="quotes">
+        <blockquote class="q fade-up">“MonoTree stitched our team’s comms, training, and match-day ops into one flow. We scaled to 12 squads in 3 weeks with zero chaos.” <b>Mara Quinn</b><small>Head Coach, SkyForge Esports</small></blockquote>
+        <blockquote class="q fade-up">“The AI Coach is the real deal. It reads our handbooks and serves the exact answer mid-scrim — faster than our analysts.” <b>Kai Nguyen</b><small>IGL, Vector Labs</small></blockquote>
+        <blockquote class="q fade-up">“From VR tuning to loadout forms, it’s enterprise-grade with gamer soul. Our retention shot up immediately.” <b>Ana R.</b><small>Ops Lead, ZenithVR</small></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- TARGETING STRIP -->
+  <section class="sect">
+    <div class="container">
+      <h2>Right settings, right players</h2>
+      <p class="sub">Direct profiles, courses and checklists to the exact roles and rosters that need them.</p>
+      <div class="features">
+        <div class="f fade-up">
+          <span class="pill">Targeting</span>
+          <h3>Publish to roles</h3>
+          <p>Push “Aim 101” to rookies, “Recall Discipline” to supports, and “Entry Protocols” to duelists — automatically.</p>
+        </div>
+        <div class="f fade-up">
+          <span class="pill">Realtime</span>
+          <h3>Event feeds</h3>
+          <p>New course published • Loadout updated • Patch 3.2 hotfix live • Friday scrim checklist ready.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTEGRATIONS (WITH ICONS + GLOW) -->
+  <section class="sect integrations">
+    <div class="container">
+      <h2>Fully automatic integrations</h2>
+      <p class="sub">Import your entire org with one click. Connect your tools — we’ll harmonize the rest.</p>
+
+      <div class="stack">
+        <!-- Steam -->
+        <div class="tile">
+          <div class="app-logo" aria-hidden="true">
+            <img src="assets/steam.jpg" alt="Steam logo" width="36" height="32">
+          </div>
+          <div>
+            <span class="app-name">Steam</span>
+            <span class="app-sub">Libraries & achievements</span>
+          </div>
+        </div>
+
+        <!-- Discord -->
+        <div class="tile">
+          <div class="app-logo">
+            <img src="assets/discord_logo.jpg" alt="Discord logo" width="32" height="32">
+          </div>
+          <div>
+            <span class="app-name">Discord</span>
+            <span class="app-sub">Roles, chat & voice</span>
+          </div>
+        </div>
+
+        <!-- Twitch -->
+        <div class="tile">
+          <div class="app-logo">
+            <img src="assets/twitch_logo.png" alt="Twitch logo" width="32" height="32">
+          </div>
+          <div>
+            <span class="app-name">Twitch</span>
+            <span class="app-sub">Streams & VOD hooks</span>
+          </div>
+        </div>
+
+        <!-- OBS -->
+        <div class="tile">
+          <div class="app-logo">
+            <img src="assets/obs_logo.jpeg" alt="OBS logo" width="32" height="32">
+          </div>
+          <div>
+            <span class="app-name">OBS</span>
+            <span class="app-sub">Scenes & capture</span>
+          </div>
+        </div>
+
+        <!-- Battle.net -->
+        <div class="tile">
+          <div class="app-logo">
+            <img src="assets/battlenet.avif" alt="Battle.net logo" width="36" height="32">
+          </div>
+          <div>
+            <span class="app-name">Battle.net</span>
+            <span class="app-sub">Launcher sync</span>
+          </div>
+        </div>
+
+        <!-- Epic -->
+        <div class="tile">
+          <div class="app-logo">
+            <img src="assets/epicgames.png" alt="Epic logo" width="36" height="32">
+          </div>
+          <div>
+            <span class="app-name">Epic</span>
+            <span class="app-sub">Store & cloud saves</span>
+          </div>
+        </div>
+
+        <!-- Riot -->
+        <div class="tile">
+          <div class="app-logo">
+            <img src="assets/riot.jpeg" alt="Riot logo" width="32" height="32">
+          </div>
+          <div>
+            <span class="app-name">Riot</span>
+            <span class="app-sub">Valorant & LoL config</span>
+          </div>
+        </div>
+
+        <!-- Xbox -->
+        <div class="tile">
+          <div class="app-logo">
+            <img src="assets/xbox_logo.png" alt="Xbox logo" width="32" height="32">
+          </div>
+          <div>
+            <span class="app-name">Xbox</span>
+            <span class="app-sub">Profiles & Game Pass</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT & CONTACT -->
+  <section class="sect" id="about">
+    <div class="container">
+      <div class="about fade-up">
+        <h2>About Me</h2>
+        <p>I’m the creator of MonoTree — a next-gen gaming experience engineered with an enterprise mindset and a designer’s eye. I focus on <b>performance, clarity, and polish</b> so it wins trust from pros, judges, and executives alike.</p>
+      </div>
+
+      <div class="contact fade-up" id="contact">
+        <h2>Contact</h2>
+        <form onsubmit="event.preventDefault(); alert('Thanks! I will get back to you shortly.'); this.reset();">
+          <input type="text" placeholder="Your Name" required>
+          <input type="email" placeholder="Your Email" required>
+          <textarea rows="5" placeholder="Your Message" required></textarea>
+          <div class="cta-row">
+            <button class="btn" type="submit">Send Message</button>
+            <button class="btn ghost" type="reset">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA STRIP -->
+  <section class="container cta-strip" id="demo">
+    <div class="row">
+      <div>
+        <h2 style="margin:0 0 6px">Get your suite in days. Impress in minutes.</h2>
+        <p class="sub" style="margin:0">We love demoing the platform. Book a live session — we’ll tailor it to your use case.</p>
+      </div>
+      <a href="#" class="btn" id="openAuth2">Book a demo</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container" style="display:grid;gap:10px">
+      <div>© <span id="year"></span> MonoTree. Built for excellence.</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <a href="#product">Product</a><span style="opacity:.4">•</span>
+        <a href="#features">Highlights</a><span style="opacity:.4">•</span>
+        <a href="#store">Store</a><span style="opacity:.4">•</span>
+        <a href="#about">About</a><span style="opacity:.4">•</span>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div class="modal" id="auth">
+    <div class="sheet">
+      <h3>Login / Create Account</h3>
+      <input type="email" placeholder="Email" required>
+      <input type="password" placeholder="Password" required>
+      <div class="row">
+        <button class="btn" onclick="authSubmit()">Continue</button>
+        <button class="close" onclick="toggleAuth(false)">Cancel</button>
+      </div>
+      <p class="sub" style="margin-top:10px">By continuing you agree to our terms and privacy policy.</p>
+    </div>
+  </div>
+
+  <script>
+    // YEAR
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // MOBILE MENU
+    const hamburger = document.getElementById('hamburger');
+    const menu = document.getElementById('menu');
+    hamburger.addEventListener('click',()=>menu.classList.toggle('show'));
+
+    // AUTH
+    const auth = document.getElementById('auth');
+    const openAuth = document.getElementById('openAuth');
+    const openAuth2 = document.getElementById('openAuth2');
+    const toggleAuth = (on)=> auth.classList.toggle('show', on);
+    window.toggleAuth = toggleAuth;
+    openAuth.addEventListener('click', e=>{e.preventDefault();toggleAuth(true)});
+    openAuth2.addEventListener('click', e=>{e.preventDefault();toggleAuth(true)});
+    function authSubmit(){
+      toggleAuth(false);
+      alert('Welcome to MonoTree! (Demo auth complete)');
+    }
+
+    // LOADER (brief & elegant)
+    window.addEventListener('load', () => {
+      setTimeout(()=> document.getElementById('loader').classList.add('hide'), 600);
+      // Resize particles to hero size on load
+      resizeParticles();
+      drawParticles();
+    });
+
+    // INTERSECTION OBSERVER (fade-ups & cards)
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }});
+    },{threshold:.18});
+    document.querySelectorAll('.fade-up,.card').forEach(el=>io.observe(el));
+
+    // METRIC COUNTERS
+    const counters = document.querySelectorAll('.metric .num');
+    const animateNum = (el, target, duration=1400)=>{
+      const isFloat = String(target).includes('.');
+      const end = parseFloat(target);
+      const start = 0;
+      const startTime = performance.now();
+      const step = (now)=>{
+        const p = Math.min(1,(now-startTime)/duration);
+        const val = start + (end-start)*p;
+        el.textContent = isFloat ? val.toFixed(1) : Math.round(val);
+        if(p<1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    const io2 = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const t = e.target.getAttribute('data-count');
+          animateNum(e.target, t);
+          io2.unobserve(e.target);
+        }
+      });
+    },{threshold:.7});
+    counters.forEach(el=>io2.observe(el));
+
+    // “Ask our AI” demo
+    document.getElementById('askBot').addEventListener('click', ()=>{
+      alert('MonoTree AI Coach: Ready. (Demo)');
+    });
+
+    /* ---------- HERO PARTICLES (hero-only canvas) ---------- */
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W=0,H=0, dots=[];
+    const COLORS = ['#00fff2','#ff00f2','#7cff00'];
+    function resizeParticles(){
+      const hero = document.querySelector('.hero');
+      W = canvas.width = hero.clientWidth;
+      H = canvas.height = hero.clientHeight;
+      if (dots.length === 0){
+        const count = Math.floor((W*H)/24000); // responsive density
+        for(let i=0;i<count;i++){
+          dots.push({
+            x: Math.random()*W,
+            y: Math.random()*H,
+            vx: (Math.random()-.5)*0.6,
+            vy: (Math.random()-.5)*0.6,
+            r: Math.random()*2+0.8,
+            c: COLORS[(Math.random()*COLORS.length)|0]
+          });
+        }
+      }
+    }
+    function drawParticles(){
+      ctx.clearRect(0,0,W,H);
+      // links
+      for(let i=0;i<dots.length;i++){
+        for(let j=i+1;j<dots.length;j++){
+          const dx=dots[i].x-dots[j].x, dy=dots[i].y-dots[j].y;
+          const d=dx*dx+dy*dy;
+          if(d<9000){
+            ctx.globalAlpha = 1 - d/9000;
+            ctx.strokeStyle = '#00fff233';
+            ctx.beginPath();
+            ctx.moveTo(dots[i].x,dots[i].y);
+            ctx.lineTo(dots[j].x,dots[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+      // dots
+      dots.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W) p.vx*=-1;
+        if(p.y<0||p.y>H) p.vy*=-1;
+        ctx.beginPath();
+        ctx.fillStyle = p.c;
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+        // halo
+        ctx.shadowBlur = 12; ctx.shadowColor=p.c;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+      requestAnimationFrame(drawParticles);
+    }
+    window.addEventListener('resize', ()=>{ resizeParticles(); });
+
+  </script>
+</body>
+</html>
+
